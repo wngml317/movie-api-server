@@ -36,8 +36,8 @@ class UserRegisterResource(Resource) :
             return {"error" : "비밀번호 길이를 확인하세요", 'error_no' : 2}, 400
 
         # # 4. 비밀번호 암호화
-        # hashed_password = hash_password(data['password'])
-        # print(hashed_password)
+        hashed_password = hash_password(data['password'])
+        print(hashed_password)
 
         # 5. 회원정보를 데이터베이스에 저장
         try :
@@ -49,7 +49,7 @@ class UserRegisterResource(Resource) :
                         (email, password, name, gender)
                         values
                         (%s, %s, %s, %s);'''
-            record = (data['email'], data['password'], data['name'], data['gender'])
+            record = (data['email'], hashed_password, data['name'], data['gender'])
 
             # 3) 커서를 가져온다.
             cursor = connection.cursor()
@@ -137,14 +137,11 @@ class UserLoginResource(Resource) :
         user_info = result_list[0]
         print(user_info)
 
-        # # data['password'] 와 user_info['password']를 비교
-        # check = check_password(data['password'], user_info['password'])
+        # data['password'] 와 user_info['password']를 비교
+        check = check_password(data['password'], user_info['password'])
         
-        # if check == False :
-        #     return {"error" : "비밀번호가 일치하지 않습니다."} 
-
-        if data['password'] != user_info['password'] :
-            return {"error" : "비밀번호 불일치"}
+        if check == False :
+            return {"error" : "비밀번호가 일치하지 않습니다."} 
 
         # JWT 억세스 토큰 생성해서 리턴해준다.
         access_token = create_access_token(user_info['id'])

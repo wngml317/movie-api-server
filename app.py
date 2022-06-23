@@ -3,10 +3,10 @@ from flask_jwt_extended import JWTManager
 from flask_restful import Api
 
 from config import Config
-from resources.movie import  MovieResource, MovieListResource
-from resources.rating import RatingInfoResource, RatingResouce
-from resources.review import RatingListResource
-from resources.search import SearchResource
+from resources.favorite import FavoriteInfoResource, FavoriteResource
+from resources.movie import  MovieResource, MovieListResource, MovieSearchResource
+from resources.rating import MovieRatingResource, RatingInfoResource, RatingListResouce
+from resources.recommend import MovieRecomRealTimeResource
 from resources.user import UserLoginResource, UserLogoutResource, UserRegisterResource, jwt_blacklist
 
 app = Flask(__name__)
@@ -28,12 +28,18 @@ api = Api(app)
 api.add_resource(UserRegisterResource, '/users/register')
 api.add_resource(UserLoginResource, '/users/login')
 api.add_resource(UserLogoutResource, '/users/logout')
+
 api.add_resource(MovieListResource, '/movie')
 api.add_resource(MovieResource,'/movie/<int:movie_id>')
-api.add_resource(RatingListResource, '/movie/<int:movie_id>/rating')
-api.add_resource(SearchResource, '/search')
-api.add_resource(RatingResouce, '/ratings/<int:movie_id>')
-api.add_resource(RatingInfoResource, '/ratings/<int:rating_id>')
+api.add_resource(MovieSearchResource,'/movie/search')
+
+api.add_resource(RatingListResouce, '/rating')
+api.add_resource(MovieRatingResource, '/movie/<int:movie_id>/rating')
+api.add_resource(RatingInfoResource, '/rating/<int:rating_id>')
+
+api.add_resource(MovieRecomRealTimeResource, '/movie/recommend')
+api.add_resource(FavoriteResource, '/favorite')
+api.add_resource(FavoriteInfoResource, '/favorite/<int:favorite_id>')
 
 
 if __name__ == "__main__" :

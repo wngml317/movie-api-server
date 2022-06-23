@@ -102,3 +102,52 @@ class MovieResource(Resource) :
 
         return {'result' : 'success',
                 'item' : result_list[0]}, 200
+
+
+class MovieSearchResource(Resource) :
+    def get(self) :
+        # 1. 클라이언트로부터 데이터를 받는다.
+        # ?keyword=so&offset=0&limit=25
+
+        keyword = request.args.get('keyword')
+        offset = request.args.get('offset')
+        limit = request.args.get('limit')
+
+        try :
+            connection = get_connection()
+
+            query = '''select m.title, count(r.movieId) as cnt, 
+                    ifnull(avg(r.rating),0) as avg
+                    from movie m
+                    left join rating r
+                    on r.movieId = m.id
+                    where m.title like '%{}%'
+                    group by r.movieId 
+                    limit {}, {};'''.format(keyword, offset, limit)
+
+            # select 문은 dictionary=True 를 해준다.
+            cursor = connection.cursor(dictionary = True)
+
+            cursor.execute(query, )
+
+            result_list = cursor.fetchall()
+            print(result_list) 
+
+            i=0
+            for record in result_list :
+                result_list[i]['avg'] = float(record['avg'])
+                i = i + 1   
+
+            cursor.close()
+            connection.close()
+
+        except mysql.connector.Error as e :
+            print(e)
+            cursor.close()
+            connection.close()
+
+            return { "error" : str(e) }, 503
+
+        return { "result" : "success", 
+                "count" : len(result_list) ,
+                "result_list" : result_list }, 200
